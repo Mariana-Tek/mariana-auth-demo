@@ -5,6 +5,7 @@ const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 7000;
+const baseURL = process.env.BASE_URL || '';
 
 // We use nunjucks for server-side templating, feel free to replace this with your solution.
 nunjucks.configure(path.join(__dirname, 'templates'), {
@@ -32,7 +33,7 @@ const oauth2 = simpleOauth.create({
  * This is the home page for the demo app.
  */
 app.get('/', (req, res) => {
-  res.render('index.html');
+  res.render('index.html.njk');
 });
 
 /**
@@ -41,7 +42,7 @@ app.get('/', (req, res) => {
  */
 app.get('/auth', (req, res) => {
   const authorizationUri = oauth2.authorizationCode.authorizeURL({
-    redirect_uri: 'http://localhost:7000/callback',
+    redirect_uri: `${baseURL}/callback`,
     scope: 'read:account',
     code_challenge: 'coolcode',
     code_challenge_method: 'plain',
@@ -53,7 +54,8 @@ app.get('/auth', (req, res) => {
 /**
  * This is the second step in the authorization code grant flow.  After completing authorization,
  * users should be redirected to this callback, with the authorization code as a query parameter.  
- * The code should then be exchanged for an access token that can be used 
+ * The code should then be exchanged for an access token that can be used to authorize subsequent
+ * requests.
  */
 app.get('/callback', async (req, res) => {
   const { code } = req.query;
@@ -63,19 +65,22 @@ app.get('/callback', async (req, res) => {
     code_verifier: 'coolcode',
   };
 
+  if (!code) {
+    return res.status(500).json('Authentication failed');
+  }
+
   try {
     const result = await oauth2.authorizationCode.getToken(options);
-    // now that we have the token, it can be used to make subsequent requests
+    // this token can now be used to authorize requests for the authenticated user
     const token = oauth2.accessToken.create(result);
     res.redirect('/success');
   } catch (error) {
-    console.error('Access Token Error', error.message);
     return res.status(500).json('Authentication failed');
   }
 });
 
 app.get('/success', async (req, res) => {
-  res.render('success.html');
+  res.render('success.html.njk');
 });
 
 app.listen(port, () => console.log(`Example app listening on http://localhost:${port}`));

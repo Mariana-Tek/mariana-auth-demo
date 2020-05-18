@@ -1,0 +1,14 @@
+{
+  "name": "Mariana Auth Demo",
+  "description": "A simple example of how to use Mariana Tek Universal Authentication.",
+  "repository": "https://github.com/mariana-tek/mariana-auth-demo",
+  "logo": "https://mariana-auth-demo.herokuapp.com/mariana-logo.svg",
+  "keywords": ["Mariana", "Tek"],
+  "env":{},
+  "addons":[],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
