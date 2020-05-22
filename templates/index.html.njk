@@ -1,5 +1,95 @@
 {% extends "demo.html.njk" %}
 
 {% block content %}
-<a href="/auth">Click to Login</button>
+    <h1>Connecting to Mariana Tek with Universal Auth</h1>
+    <p>
+        Mariana Tek uses <a href="https://tools.ietf.org/html/rfc6749">OAuth 2.0</a> in order to authenticate users.
+        The flow that should be used is determined by the type of your application. For traditional web apps like this demo,
+        the Authorization Code Flow should be used.
+    </p>
+
+    <h2>Overview</h2>
+    <p>
+        A user will authenticate with this flow as follows:
+    </p>
+    <ol>
+        <li>
+            User initiates the login flow by clicking a link that will take them to Mariana Tek for
+            authorization. If necessary, the user will log in and give permission to your application
+            to make requests on their behalf.
+        </li>
+        <li>
+            After authenticating, the user is redirected to the <code>redirect_url</code> your application provided
+            as part of Step 1, with the authorization code returned as a query parameter.  
+        </li>
+        <li>
+            This authorization code can then be exchanged for an <code>access_token</code> by making a request to
+            the token endpoint.
+        </li>
+    </ol>
+    <p>
+        Once these steps are complete, the access token may be stored and used to authenticate
+        subsequent API requests.
+    </p>
+
+    <h3>Step 1: Construct the authorization link</h3>
+    <p>
+        Before you get started, you’ll need a valid <code>client_id</code> and <code>client_secret</code> for your application,
+        as well as the base url for the brand you wish to connect to within the Mariana Tek platform.  If
+        you don’t have these values yet, contact your account manager to register your application.  When
+        your application is registered, make sure to provide your <code>redirect_uri</code> so that this OAuth flow
+        can be completed successfully. 
+    </p>
+
+    <p>Once you have these pieces of information, your authorization redirect should look like this:</p>
+    <pre class="bg-light rounded">
+
+    https://{BRAND}.marianatek.com/o/authorize?response_type=code&amp;client_id={CLIENT_ID}
+        &amp;redirect_uri={REDIRECT_URI}&amp;scope=read:account&amp;state={STATE}
+    </pre>
+    <p>
+        The value of state will be returned along with the authorization code.
+    <p>
+    <p>
+        If you would like to require users to log in each time they are authorized, even if they have an active
+        session, you may set the optional query parameter <code>prompt=true</code>.
+    </p>
+    <p>
+        Here is an example of how this can be done:
+    </p>
+    <a class="btn btn-dark" href="/auth" role="button">Click here to log in</a>
+
+    <h3>Step 2: Authorization redirect</h3>
+    <p>
+        After successful authorization, the user will be sent to the <code>redirect_uri</code> that was specified.
+        The authorization code will be returned as a query parameter.
+        This redirect will look like this:
+    </p>
+    <pre class="bg-light rounded">
+
+    https://example.marianatek.com/callback?code={AUTHORIZATION_CODE}&amp;state={STATE}
+    </pre>
+    
+    <h3>Step 3: Exchange code for access token</h3>
+    <p>
+        Using the authorization code that should have been retrieved in the previous step, your application should
+        now make a request to the token endpoint:
+    </p>
+    <pre class="bg-light rounded">
+
+    POST https://{BRAND}.marianatek.com/o/token?client_id={CLIENT_ID}&amp;code={AUTHORIZATION_CODE}
+        &amp;grant_type=authorization_code
+    </pre>
+    <p> The response will look like this:</p>
+    <pre class="bg-light rounded">
+
+    {
+        "access_token": {ACCESS_TOKEN},
+        "expires_in": 604800,
+        "token_type": "Bearer",
+        "scope": "read:account",
+        "refresh_token": {REFRESH_TOKEN},
+    }
+    </pre>
+
 {% endblock %}
