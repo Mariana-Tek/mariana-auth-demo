@@ -7,6 +7,7 @@ const app = express();
 const port = process.env.PORT || 7000;
 const baseURL = process.env.BASE_URL || '';
 
+
 // We use nunjucks for server-side templating, feel free to replace this with your solution.
 nunjucks.configure(path.join(__dirname, 'templates'), {
   autoescape: true,
@@ -44,9 +45,10 @@ app.get('/auth', (req, res) => {
   const authorizationUri = oauth2.authorizationCode.authorizeURL({
     redirect_uri: `${baseURL}/callback`,
     scope: 'read:account',
+    prompt: true,
+    // these are only required if using PKCE
     code_challenge: 'coolcode',
     code_challenge_method: 'plain',
-    prompt: true,
   });
   res.redirect(authorizationUri);
 });
@@ -61,6 +63,8 @@ app.get('/callback', async (req, res) => {
   const { code } = req.query;
   const options = {
     code,
+    redirect_uri: `${baseURL}/callback`,
+    //these are only required if using PKCE
     client_id: process.env.CLIENT_ID,
     code_verifier: 'coolcode',
   };
@@ -75,7 +79,8 @@ app.get('/callback', async (req, res) => {
     const token = oauth2.accessToken.create(result);
     res.redirect('/success');
   } catch (error) {
-    return res.status(500).json('Authentication failed');
+    console.log(error);
+    return res.status(500).json(`Authentication failure, could not get access token: ${error.data.payload.error}}`);
   }
 });
 
