@@ -4,7 +4,8 @@
   "description": "A simple example of how to use the Mariana Tek Universal Authentication.",
   "main": "server.js",
   "scripts": {
-    "dev": "nf start",
+    "local": "nf run npm run dev",
+    "dev": "nodemon -e js,njk server.js",
     "start": "node server.js"
   },
   "author": "Mariana Tek",

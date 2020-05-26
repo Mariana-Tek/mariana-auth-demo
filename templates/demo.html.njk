@@ -5,24 +5,16 @@
         <title>Mariana Auth Demo</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" href="/demo.css">
-        {# <style>
-            code {
-                font-family: monospace;
-                white-space: pre;
-            }
-        </style> #}
     </head>
     <body>
         <div class="container">
             <div class="py-5 text-center">
                 <img class="d-block mx-auto mb-4" src="/mariana-logo.svg" alt="Mariana Tek Logo">
+                <h1>{% block heading %}{% endblock %}</h1>
             </div>
 
-            <div>
-                {% block content %}{% endblock %}
-            </div>
-                
+            {% block content %}{% endblock %}
+
             <footer class="my-5 pt-5 text-muted text-center text-small">
                 <p class="mb-1">&copy; 2020 Mariana Tek Corporation</p>
             </footer>

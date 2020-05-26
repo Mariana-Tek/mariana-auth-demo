@@ -2,10 +2,18 @@ const express = require('express');
 const nunjucks = require('nunjucks');
 const simpleOauth = require('simple-oauth2');
 const path = require('path');
-
 const app = express();
-const port = process.env.PORT || 7000;
+
+const authHost = process.env.AUTH_HOST;
 const baseURL = process.env.BASE_URL || '';
+const clientID = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
+const port = process.env.PORT || 7000;
+
+// make sure all the required environment variables are set
+if (!authHost) { console.error('Error: $AUTH_HOST must be set.'); process.exit(1); }
+if (!clientID) { console.error('Error: $CLIENT_ID must be set.'); process.exit(1); }
+if (!clientSecret) { console.error('Error: $CLIENT_SECRET must be set.'); process.exit(1); }
 
 
 // We use nunjucks for server-side templating, feel free to replace this with your solution.
@@ -16,6 +24,7 @@ nunjucks.configure(path.join(__dirname, 'templates'), {
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 // We're using simple-oauth2 to handle the authentication process, but any oauth solution should work here.
 const oauth2 = simpleOauth.create({
@@ -30,12 +39,14 @@ const oauth2 = simpleOauth.create({
   },
 });
 
+
 /**
  * This is the home page for the demo app.
  */
 app.get('/', (req, res) => {
   res.render('index.html.njk');
 });
+
 
 /**
  * This is the first step in the authorization code grant flow.  Users should be redirected to the 
@@ -52,6 +63,7 @@ app.get('/auth', (req, res) => {
   });
   res.redirect(authorizationUri);
 });
+
 
 /**
  * This is the second step in the authorization code grant flow.  After completing authorization,
@@ -84,8 +96,10 @@ app.get('/callback', async (req, res) => {
   }
 });
 
+
 app.get('/success', async (req, res) => {
   res.render('success.html.njk');
 });
+
 
 app.listen(port, () => console.log(`Example app listening on http://localhost:${port}`));
