@@ -25,7 +25,7 @@ const oauth2 = simpleOauth.create({
   },
   auth: {
     tokenHost: process.env.AUTH_HOST,
-    tokenPath: '/o/token',
+    tokenPath: '/o/token/',
     authorizePath: '/o/authorize',
   },
 });
@@ -44,11 +44,7 @@ app.get('/', (req, res) => {
 app.get('/auth', (req, res) => {
   const authorizationUri = oauth2.authorizationCode.authorizeURL({
     redirect_uri: `${baseURL}/callback`,
-    scope: 'read:account',
     prompt: true,
-    // these are only required if using PKCE
-    code_challenge: 'coolcode',
-    code_challenge_method: 'plain',
   });
   res.redirect(authorizationUri);
 });
@@ -64,9 +60,8 @@ app.get('/callback', async (req, res) => {
   const options = {
     code,
     redirect_uri: `${baseURL}/callback`,
-    //these are only required if using PKCE
     client_id: process.env.CLIENT_ID,
-    code_verifier: 'coolcode',
+    client_secret: process.env.CLIENT_SECRET,
   };
 
   if (!code) {
